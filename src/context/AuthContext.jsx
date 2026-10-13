@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiService } from '../services/apiService';
 
 const AuthContext = createContext();
 
 const STORAGE_KEY = 'nesta_auth_user';
-const USERS_DB_KEY = 'nesta_registered_users';
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(() => {
@@ -15,84 +15,55 @@ export function AuthProvider({ children }) {
     }
   });
 
-  const [registeredUsers, setRegisteredUsers] = useState(() => {
-    try {
-      const saved = localStorage.getItem(USERS_DB_KEY);
-      return saved ? JSON.parse(saved) : [
-        {
-          id: 'demo-user-1',
-          name: 'Alex Rivera',
-          email: 'demo@nesta.dev',
-          password: 'password123',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-          plan: 'Pro Architect',
-          createdAt: new Date().toISOString(),
-        }
-      ];
-    } catch {
-      return [];
-    }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(USERS_DB_KEY, JSON.stringify(registeredUsers));
-    } catch (err) {
-      console.error(err);
-    }
-  }, [registeredUsers]);
-
   const login = async (email, password) => {
-    const user = registeredUsers.find(
-      u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
-    if (!user) {
-      throw new Error('Invalid email or password. Please check your credentials or register.');
+    try {
+      // Backend uses username, we'll map email to username
+      const res = await apiService.login(email, password);
+      const user = {
+        name: email.split('@')[0] || email,
+        email: email,
+        plan: 'Pro Architect',
+      };
+      setCurrentUser(user);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      return user;
+    } catch (err) {
+      throw new Error(err.message || 'Invalid credentials or backend not reachable.');
     }
-    setCurrentUser(user);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    return user;
   };
 
   const register = async (name, email, password) => {
-    const exists = registeredUsers.some(
-      u => u.email.toLowerCase() === email.toLowerCase()
-    );
-    if (exists) {
-      throw new Error('An account with this email already exists. Please log in.');
+    try {
+      await apiService.register(email, password); // uses email as username
+      return login(email, password);
+    } catch (err) {
+      throw new Error(err.message || 'Registration failed');
     }
-
-    const newUser = {
-      id: 'user-' + Date.now(),
-      name,
-      email,
-      password,
-      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
-      plan: 'Starter Creator',
-      createdAt: new Date().toISOString(),
-    };
-
-    const updated = [...registeredUsers, newUser];
-    setRegisteredUsers(updated);
-    setCurrentUser(newUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
-    return newUser;
   };
 
-  const loginDemo = () => {
-    const demoUser = registeredUsers[0] || {
-      id: 'demo-user-1',
-      name: 'Alex Rivera',
-      email: 'demo@nesta.dev',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      plan: 'Pro Architect',
-      createdAt: new Date().toISOString(),
-    };
-    setCurrentUser(demoUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(demoUser));
+  const loginDemo = async () => {
+    // try to register demo user if not exists, then log in
+    try {
+      return await register('Demo', 'demo@nesta.dev', 'password123');
+    } catch {
+      try {
+        return await login('demo@nesta.dev', 'password123');
+      } catch {
+        // Fallback demo user if backend is offline/unreachable
+        const demoUser = {
+          name: 'Demo Architect',
+          email: 'demo@nesta.dev',
+          plan: 'Pro Architect',
+        };
+        setCurrentUser(demoUser);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(demoUser));
+        return demoUser;
+      }
+    }
   };
 
   const logout = () => {
+    apiService.logout();
     setCurrentUser(null);
     localStorage.removeItem(STORAGE_KEY);
   };

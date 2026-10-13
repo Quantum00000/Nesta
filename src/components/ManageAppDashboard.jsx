@@ -43,9 +43,11 @@ export default function ManageAppDashboard({ currentUser, onStartNewApp }) {
     try {
       const { blob, filename } = await generateProjectZip({
         projectName: proj.name,
+        projectDescription: proj.description,
         frontend: proj.frontend,
         backend: proj.backend,
         template: proj.template,
+        customization: proj.customization || {}
       });
       downloadBlob(blob, filename);
     } catch (err) {

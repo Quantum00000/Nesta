@@ -201,7 +201,7 @@ export default function FrontendDetailModal({ frontend, isOpen, onClose, isSelec
                   Key Architectural Strengths
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {frontend.keyFeatures.map((feat, idx) => (
+                  {(frontend.keyFeatures || []).map((feat, idx) => (
                     <div key={idx} className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-start gap-2.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 mt-1.5 shrink-0" />
                       <span className="text-xs text-slate-200">{feat}</span>
@@ -225,19 +225,19 @@ export default function FrontendDetailModal({ frontend, isOpen, onClose, isSelec
           <div className="grid grid-cols-4 gap-2 pt-2 border-t border-white/10 text-center font-mono">
             <div className="p-2 rounded-lg bg-white/5">
               <span className="text-[10px] text-slate-400 uppercase block">GitHub Stars</span>
-              <span className="text-xs font-bold text-white mt-0.5 block">{frontend.stats.stars}</span>
+              <span className="text-xs font-bold text-white mt-0.5 block">{(frontend.stats || {}).stars}</span>
             </div>
             <div className="p-2 rounded-lg bg-white/5">
               <span className="text-[10px] text-slate-400 uppercase block">Bundle Size</span>
-              <span className="text-xs font-bold text-yellow-400 mt-0.5 block">{frontend.stats.bundleSize}</span>
+              <span className="text-xs font-bold text-yellow-400 mt-0.5 block">{(frontend.stats || {}).bundleSize}</span>
             </div>
             <div className="p-2 rounded-lg bg-white/5">
               <span className="text-[10px] text-slate-400 uppercase block">Build Latency</span>
-              <span className="text-xs font-bold text-white mt-0.5 block">{frontend.stats.buildSpeed}</span>
+              <span className="text-xs font-bold text-white mt-0.5 block">{(frontend.stats || {}).buildSpeed}</span>
             </div>
             <div className="p-2 rounded-lg bg-white/5">
               <span className="text-[10px] text-slate-400 uppercase block">SEO Index</span>
-              <span className="text-xs font-bold text-emerald-400 mt-0.5 block">{frontend.stats.seoScore}</span>
+              <span className="text-xs font-bold text-emerald-400 mt-0.5 block">{(frontend.stats || {}).seoScore}</span>
             </div>
           </div>
 

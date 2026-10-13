@@ -20,7 +20,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-export default function BackendChoiceSection({ selectedBackend, onSelectBackend }) {
+export default function BackendChoiceSection({ options = [], selectedBackend, onSelectBackend }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [modalBackend, setModalBackend] = useState(null);
@@ -33,7 +33,7 @@ export default function BackendChoiceSection({ selectedBackend, onSelectBackend 
   const [customCategory, setCustomCategory] = useState('Node.js');
 
   // Filter options based on category and search
-  const filteredOptions = BACKEND_OPTIONS.filter((item) => {
+  const filteredOptions = options.filter((item) => {
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.tagline.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -238,15 +238,15 @@ export default function BackendChoiceSection({ selectedBackend, onSelectBackend 
                 <div className="grid grid-cols-3 gap-2 py-3 border-y border-white/5 mb-4 text-center font-mono">
                   <div className="p-1.5 rounded-lg bg-[#14161b]">
                     <span className="text-[9px] text-slate-400 uppercase block">Size</span>
-                    <span className="text-xs font-semibold text-white block mt-0.5">{backend.stats.bundleSize}</span>
+                    <span className="text-xs font-semibold text-white block mt-0.5">{(backend.stats || {}).bundleSize}</span>
                   </div>
                   <div className="p-1.5 rounded-lg bg-[#14161b]">
                     <span className="text-[9px] text-slate-400 uppercase block">Build</span>
-                    <span className="text-xs font-semibold text-yellow-400 block mt-0.5">{backend.stats.buildSpeed}</span>
+                    <span className="text-xs font-semibold text-yellow-400 block mt-0.5">{(backend.stats || {}).buildSpeed}</span>
                   </div>
                   <div className="p-1.5 rounded-lg bg-[#14161b]">
                     <span className="text-[9px] text-slate-400 uppercase block">SEO</span>
-                    <span className="text-xs font-semibold text-emerald-400 block mt-0.5">{backend.stats.seoScore}</span>
+                    <span className="text-xs font-semibold text-emerald-400 block mt-0.5">{(backend.stats || {}).seoScore}</span>
                   </div>
                 </div>
               </div>

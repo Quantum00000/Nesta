@@ -11,31 +11,155 @@ export default function AuthScreen({ onContinue }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Cool transition states
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionProgress, setTransitionProgress] = useState(0);
+  const [transitionStep, setTransitionStep] = useState(1);
+
+  const triggerTransitionAndFinish = async (authAction) => {
     setError('');
     setLoading(true);
+    setIsTransitioning(true);
+    setTransitionProgress(25);
+    setTransitionStep(1);
 
     try {
-      if (isRegister) {
-        if (!name.trim()) throw new Error('Please enter your full name.');
-        if (password.length < 6) throw new Error('Password should be at least 6 characters.');
-        await register(name, email, password);
-      } else {
-        await login(email, password);
-      }
+      await new Promise((r) => setTimeout(r, 220));
+      setTransitionProgress(55);
+      setTransitionStep(2);
+
+      await authAction();
+
+      await new Promise((r) => setTimeout(r, 280));
+      setTransitionProgress(90);
+      setTransitionStep(3);
+
+      await new Promise((r) => setTimeout(r, 250));
+      setTransitionProgress(100);
+
+      window.scrollTo({ top: 0, behavior: 'instant' });
       if (onContinue) onContinue();
     } catch (err) {
-      setError(err.message || 'Authentication failed. Please try again.');
+      setIsTransitioning(false);
+      setTransitionProgress(0);
+      setTransitionStep(1);
+      setError(err.message || 'Authentication failed. Please verify credentials or backend connection.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDemoLogin = () => {
-    loginDemo();
-    if (onContinue) onContinue();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isRegister) {
+      if (!name.trim()) {
+        setError('Please enter your full name.');
+        return;
+      }
+      if (password.length < 6) {
+        setError('Password should be at least 6 characters.');
+        return;
+      }
+      await triggerTransitionAndFinish(() => register(name, email, password));
+    } else {
+      await triggerTransitionAndFinish(() => login(email, password));
+    }
   };
+
+  const handleDemoLogin = async () => {
+    await triggerTransitionAndFinish(() => loginDemo());
+  };
+
+  // Render Fullscreen Cool Transition Screen when authenticating
+  if (isTransitioning) {
+    return (
+      <div className="fixed inset-0 z-50 bg-[#0a0c12] flex flex-col items-center justify-center p-6 text-white overflow-hidden animate-fadeIn font-['Plus_Jakarta_Sans',sans-serif]">
+        {/* Atmospheric ambient glows */}
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-yellow-400/20 blur-[150px] pointer-events-none animate-pulse" />
+        <div className="absolute w-[450px] h-[450px] rounded-full bg-sky-400/20 blur-[170px] pointer-events-none" />
+
+        {/* Center Card */}
+        <div className="w-full max-w-md p-8 sm:p-10 rounded-3xl glass-card neu-surface border border-yellow-400/30 shadow-[0_0_60px_rgba(250,204,21,0.25)] text-center relative z-10 animate-scaleUp">
+          
+          {/* Pulsing Nesta Emblem */}
+          <div className="relative w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-2xl bg-yellow-400/30 animate-ping opacity-60" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-yellow-500 via-amber-400 to-yellow-300 flex items-center justify-center font-black text-black text-3xl shadow-[0_0_35px_rgba(250,204,21,0.85)] relative z-10">
+              N
+            </div>
+          </div>
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-yellow-400/15 border border-yellow-400/40 text-yellow-300 text-xs font-mono font-bold mb-3 shadow-sm">
+            <Zap className="w-3.5 h-3.5 text-yellow-400 animate-bounce" />
+            <span>AUTHENTICATING PRO ARCHITECT</span>
+          </div>
+
+          <h2 className="text-2xl font-black text-white tracking-tight mb-1">
+            Welcome to Nesta Studio
+          </h2>
+          <p className="text-xs text-slate-400 mb-6 font-mono">
+            {name || (email ? email.split('@')[0] : 'Demo Architect')} • Initializing Workspace
+          </p>
+
+          {/* Glowing Animated Progress Bar */}
+          <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden mb-6 border border-white/10 shadow-inner p-0.5">
+            <div
+              className="h-full bg-gradient-to-r from-yellow-400 via-amber-300 to-sky-400 transition-all duration-300 rounded-full shadow-[0_0_20px_rgba(250,204,21,0.9)]"
+              style={{ width: `${transitionProgress}%` }}
+            />
+          </div>
+
+          {/* Animated Checklist Steps */}
+          <div className="space-y-2.5 text-left text-xs bg-black/50 p-4 rounded-2xl border border-white/10">
+            <div className="flex items-center gap-3">
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                transitionStep > 1 
+                  ? 'bg-emerald-400 text-black shadow-[0_0_10px_rgba(52,211,153,0.6)]' 
+                  : transitionStep === 1 
+                    ? 'bg-yellow-400 text-black animate-pulse' 
+                    : 'bg-white/10 text-slate-500'
+              }`}>
+                {transitionStep > 1 ? '✓' : '1'}
+              </div>
+              <span className={transitionStep >= 1 ? 'text-white font-medium' : 'text-slate-500'}>
+                Verifying JWT developer credentials...
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                transitionStep > 2 
+                  ? 'bg-emerald-400 text-black shadow-[0_0_10px_rgba(52,211,153,0.6)]' 
+                  : transitionStep === 2 
+                    ? 'bg-yellow-400 text-black animate-pulse' 
+                    : 'bg-white/10 text-slate-500'
+              }`}>
+                {transitionStep > 2 ? '✓' : '2'}
+              </div>
+              <span className={transitionStep >= 2 ? 'text-white font-medium' : 'text-slate-500'}>
+                Loading modular components & UI templates...
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                transitionStep >= 3 
+                  ? 'bg-emerald-400 text-black shadow-[0_0_10px_rgba(52,211,153,0.6)]' 
+                  : 'bg-white/10 text-slate-500'
+              }`}>
+                {transitionStep >= 3 ? '✓' : '3'}
+              </div>
+              <span className={transitionStep >= 3 ? 'text-emerald-300 font-bold' : 'text-slate-500'}>
+                Workspace ready! Launching Nesta Studio...
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0e1015] text-white flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
@@ -174,6 +298,7 @@ export default function AuthScreen({ onContinue }) {
               <button
                 type="button"
                 onClick={handleDemoLogin}
+                disabled={loading}
                 className="w-full py-2.5 rounded-xl neu-btn text-xs font-semibold text-slate-200 hover:text-white flex items-center justify-center gap-2 border border-white/10"
               >
                 <Sparkles className="w-3.5 h-3.5 text-yellow-400" />

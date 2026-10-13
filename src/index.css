@@ -6,38 +6,38 @@
    NESTA DESIGN SYSTEM — CSS Custom Properties  (Light / Dark)
    ================================================================ */
 
-/* ---- LIGHT THEME (default :root) ---- */
-:root {
+/* ---- LIGHT THEME (default :root & html:not(.dark)) ---- */
+:root,
+html:not(.dark) {
   /* Backgrounds */
-  --bg-base:    #E9ECF3;
-  --bg-surface: #EFF2F8;
-  --bg-card:    #F7F8FC;
-  --bg-raised:  #FFFFFF;
-  --bg-pressed: #DFE2EB;
+  --bg-base:    #F1F5F9;
+  --bg-surface: #FFFFFF;
+  --bg-card:    #FFFFFF;
+  --bg-raised:  #F8FAFC;
+  --bg-pressed: #E2E8F0;
 
   /* Typography */
-  --text-primary:   #1A1C24;
-  --text-secondary: #525A74;
-  --text-muted:     #8594AD;
+  --text-primary:   #0F172A; /* slate-900 */
+  --text-secondary: #334155; /* slate-700 */
+  --text-muted:     #64748B; /* slate-500 */
 
   /* Borders */
   --border-subtle: rgba(0, 0, 0, 0.06);
   --border-medium: rgba(0, 0, 0, 0.10);
-  --border-strong: rgba(0, 0, 0, 0.18);
+  --border-strong: rgba(0, 0, 0, 0.16);
 
-  /* Neumorphic shadows (light surface ≈ #E9ECF3) */
-  --neu-raise:    8px 8px 20px #C5C9D5, -6px -6px 14px #FFFFFF;
-  --neu-raise-sm: 4px 4px 10px #C5C9D5, -3px -3px 8px #FFFFFF;
-  --neu-press:    inset 4px 4px 10px #C5C9D5, inset -3px -3px 8px #FFFFFF;
-  --neu-press-sm: inset 3px 3px 6px #C5C9D5,  inset -2px -2px 5px #FFFFFF;
-  --neu-yellow:   0 0 20px rgba(250,204,21,0.45), 5px 5px 12px #C5C9D5;
-  --neu-btn-bg:   #E9ECF3;
+  /* Neumorphic shadows */
+  --neu-raise:    0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  --neu-raise-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --neu-press:    inset 2px 2px 5px rgba(0, 0, 0, 0.06), inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+  --neu-press-sm: inset 1px 1px 3px rgba(0, 0, 0, 0.06);
+  --neu-yellow:   0 0 20px rgba(250,204,21,0.45), 0 4px 12px rgba(234, 179, 8, 0.25);
+  --neu-btn-bg:   #FFFFFF;
 
   /* Glass */
-  --glass-bg:     rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.92);
-  --glass-shadow: 0 8px 32px rgba(100, 110, 140, 0.18),
-                  inset 0 1px 2px rgba(255, 255, 255, 1);
+  --glass-bg:     rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.06), inset 0 1px 2px rgba(255, 255, 255, 1);
 
   color-scheme: light;
 }
@@ -71,6 +71,225 @@ html.dark {
                   inset 0 1px 1px 0 rgba(255,255,255,0.12);
 
   color-scheme: dark;
+}
+
+/* ================================================================
+   LIGHT MODE ADAPTIVE COMPONENT STYLING
+   ================================================================ */
+
+html:not(.dark) {
+  /* Text Contrast — strictly excluding live customization content */
+  .text-white:not(.keep-white):not(.live-customization-content):not(.live-customization-content *) {
+    color: #0F172A !important;
+  }
+  .text-slate-200:not(.live-customization-content):not(.live-customization-content *) {
+    color: #1E293B !important;
+  }
+  .text-slate-300:not(.live-customization-content):not(.live-customization-content *) {
+    color: #334155 !important;
+  }
+  .text-slate-400:not(.live-customization-content):not(.live-customization-content *) {
+    color: #64748B !important;
+  }
+
+  /* Yellow badges and links */
+  .text-yellow-300:not(.live-customization-content):not(.live-customization-content *),
+  .text-yellow-400:not(.live-customization-content):not(.live-customization-content *) {
+    color: #B45309 !important;
+  }
+  
+  /* Preserve text color on yellow or colored buttons */
+  .text-black,
+  .text-black *,
+  .neu-yellow-btn,
+  .neu-yellow-btn *,
+  .bg-yellow-400,
+  .bg-yellow-400 *,
+  .bg-yellow-300,
+  .bg-yellow-300 *,
+  [style*="background-color: #FACC15"] *,
+  [style*="background-color: #facc15"] * {
+    color: #000000 !important;
+  }
+
+  /* Hardcoded dark backgrounds convert to clean light surfaces — strictly excluding live customization content */
+  .bg-\[\#0e1015\]:not(.live-customization-content):not(.live-customization-content *),
+  .bg-\[\#14161b\]:not(.live-customization-content):not(.live-customization-content *),
+  .bg-\[\#14161B\]:not(.live-customization-content):not(.live-customization-content *),
+  .bg-\[\#181b24\]:not(.live-customization-content):not(.live-customization-content *),
+  .bg-\[\#12151e\]:not(.live-customization-content):not(.live-customization-content *),
+  .bg-\[\#090b10\]:not(.live-customization-content):not(.live-customization-content *) {
+    background-color: #FFFFFF !important;
+  }
+
+  .bg-\[\#1B1E26\]:not(.live-customization-content):not(.live-customization-content *),
+  .bg-\[\#222631\]:not(.live-customization-content):not(.live-customization-content *),
+  .bg-\[\#222735\]:not(.live-customization-content):not(.live-customization-content *) {
+    background-color: #F8FAFC !important;
+  }
+
+  /* Translucent dark backdrops become subtle light tints — strictly excluding live customization content */
+  .bg-white\/5:not(.live-customization-content):not(.live-customization-content *) {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+  }
+  .bg-white\/10:not(.live-customization-content):not(.live-customization-content *) {
+    background-color: rgba(0, 0, 0, 0.06) !important;
+  }
+  .bg-white\/15:not(.live-customization-content):not(.live-customization-content *),
+  .bg-white\/20:not(.live-customization-content):not(.live-customization-content *) {
+    background-color: rgba(0, 0, 0, 0.09) !important;
+  }
+
+  /* Borders become clean subtle light grey borders — strictly excluding live customization content */
+  .border-white\/5:not(.live-customization-content):not(.live-customization-content *),
+  .border-white\/10:not(.live-customization-content):not(.live-customization-content *),
+  .border-white\/15:not(.live-customization-content):not(.live-customization-content *),
+  .border-white\/20:not(.live-customization-content):not(.live-customization-content *) {
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
+
+  /* Form controls in light mode — strictly excluding live customization content */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not(.live-customization-content):not(.live-customization-content *),
+  textarea:not(.live-customization-content):not(.live-customization-content *),
+  select:not(.live-customization-content):not(.live-customization-content *) {
+    color: #0F172A !important;
+    background-color: #FFFFFF !important;
+    border-color: rgba(0, 0, 0, 0.14) !important;
+  }
+  input:not(.live-customization-content):not(.live-customization-content *)::placeholder,
+  textarea:not(.live-customization-content):not(.live-customization-content *)::placeholder {
+    color: #94A3B8 !important;
+  }
+
+  /* Code / Pre elements */
+  pre:not(.live-customization-content):not(.live-customization-content *) {
+    background-color: #F8FAFC !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: #0F172A !important;
+  }
+}
+
+/* ================================================================
+   LIVE CUSTOMIZATION SANDBOX ISOLATION
+   Main home page light or dark mode MUST NOT affect live customization content.
+   ================================================================ */
+
+.live-customization-content {
+  color-scheme: dark;
+}
+
+.live-customization-content .text-white {
+  color: #FFFFFF !important;
+}
+
+.live-customization-content .text-slate-200 {
+  color: #E2E8F0 !important;
+}
+
+.live-customization-content .text-slate-300 {
+  color: #CBD5E1 !important;
+}
+
+.live-customization-content .text-slate-400 {
+  color: #94A3B8 !important;
+}
+
+.live-customization-content .text-slate-500 {
+  color: #64748B !important;
+}
+
+.live-customization-content .text-yellow-300 {
+  color: #FDE047 !important;
+}
+
+.live-customization-content .text-yellow-400 {
+  color: #FACC15 !important;
+}
+
+.live-customization-content .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.live-customization-content .bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+.live-customization-content .bg-white\/15 {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.live-customization-content .bg-white\/20 {
+  background-color: rgba(255, 255, 255, 0.20) !important;
+}
+
+.live-customization-content .bg-black\/40 {
+  background-color: rgba(0, 0, 0, 0.40) !important;
+}
+
+.live-customization-content .bg-black\/50 {
+  background-color: rgba(0, 0, 0, 0.50) !important;
+}
+
+.live-customization-content .border-white\/5 {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.live-customization-content .border-white\/10 {
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+.live-customization-content .border-white\/15 {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.live-customization-content .border-white\/20 {
+  border-color: rgba(255, 255, 255, 0.20) !important;
+}
+
+.live-customization-content input {
+  color: #FFFFFF !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.live-customization-content input::placeholder {
+  color: #64748B !important;
+}
+
+.live-customization-content .text-black,
+.live-customization-content .text-black *,
+.live-customization-content [style*="background-color: #FACC15"] *,
+.live-customization-content [style*="background-color: #facc15"] * {
+  color: #000000 !important;
+}
+
+/* Light surface adaptation if user chooses light surface preset */
+.live-customization-content.light-surface {
+  color-scheme: light;
+}
+
+.live-customization-content.light-surface .text-white {
+  color: #0F172A !important;
+}
+
+.live-customization-content.light-surface .text-slate-300 {
+  color: #334155 !important;
+}
+
+.live-customization-content.light-surface .text-slate-400 {
+  color: #64748B !important;
+}
+
+.live-customization-content.light-surface .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.live-customization-content.light-surface .bg-black\/40 {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.live-customization-content.light-surface .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
 }
 
 /* ================================================================

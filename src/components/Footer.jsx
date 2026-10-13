@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUp, Terminal } from 'lucide-react';
 
-export default function Footer({ onOpenApiModal, onNavigate }) {
+export default function Footer({ onOpenApiModal, onNavigate, isUltimateMode }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -48,34 +48,40 @@ export default function Footer({ onOpenApiModal, onNavigate }) {
                   🧩 UI Components
                 </button>
               </li>
-              <li>
-                <button onClick={() => onNavigate('frontends')} className="hover:text-white transition-colors">
-                  💻 Frontend Options
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('backends')} className="hover:text-white transition-colors">
-                  🖥️ Backend Options
-                </button>
-              </li>
+              {isUltimateMode && (
+                <>
+                  <li>
+                    <button onClick={() => onNavigate('frontends')} className="hover:text-white transition-colors">
+                      💻 Frontend Options
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => onNavigate('backends')} className="hover:text-white transition-colors">
+                      🖥️ Backend Options
+                    </button>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 
           {/* Help */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold text-yellow-400">Help & Docs</h4>
-            <ul className="space-y-2 text-sm text-slate-400">
-              <li>
-                <button onClick={onOpenApiModal} className="hover:text-white flex items-center gap-1.5 transition-colors">
-                  <Terminal className="w-3.5 h-3.5 text-yellow-400" />
-                  View API Details
-                </button>
-              </li>
-              <li>
-                <span className="text-slate-500 text-xs">Add a framework: edit <code className="text-slate-300">src/data/frontendOptions.js</code></span>
-              </li>
-            </ul>
-          </div>
+          {isUltimateMode && (
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold text-yellow-400">Help & Docs</h4>
+              <ul className="space-y-2 text-sm text-slate-400">
+                <li>
+                  <button onClick={onOpenApiModal} className="hover:text-white flex items-center gap-1.5 transition-colors">
+                    <Terminal className="w-3.5 h-3.5 text-yellow-400" />
+                    View API Details
+                  </button>
+                </li>
+                <li>
+                  <span className="text-slate-500 text-xs">Add a framework: edit <code className="text-slate-300">src/data/frontendOptions.js</code></span>
+                </li>
+              </ul>
+            </div>
+          )}
 
         </div>
 

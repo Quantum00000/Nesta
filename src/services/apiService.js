@@ -1,99 +1,99 @@
-import { API_CONFIG, API_ENDPOINTS } from '../api/endpoints';
+import axios from 'axios';
+import { API_CONFIG } from '../api/endpoints';
+import { UI_TEMPLATES } from '../data/uiTemplates';
+import { FRONTEND_OPTIONS } from '../data/frontendOptions';
+import { BACKEND_OPTIONS } from '../data/backendOptions';
 
-/**
- * Nesta API Service Client
- * Handles real HTTP calls with graceful mock fallback when backend is offline.
- */
+const apiClient = axios.create({
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('nesta_jwt_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+apiClient.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    console.error('[Nesta API Error]', error.response?.data || error.message);
+    return Promise.reject(error.response?.data || error);
+  }
+);
+
 class ApiService {
-  constructor() {
-    this.baseUrl = API_CONFIG.BASE_URL;
+  async request(config) {
+    return apiClient(config);
   }
 
-  async request(endpoint, options = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
-
-      const response = await fetch(url, {
-        ...options,
-        headers,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (err) {
-      console.warn(`[Nesta API] Backend at ${url} not reachable or responded with error: ${err.message}. Using mock simulation.`);
-      return this.handleFallback(endpoint, options);
-    }
+  async login(username, password) {
+    const res = await this.request({ url: '/auth/login', method: 'POST', data: { username, password }});
+    if (res.token) localStorage.setItem('nesta_jwt_token', res.token);
+    return res;
   }
 
-  // Graceful mock fallback handler
-  async handleFallback(endpoint, options) {
-    // Artificial latency for tactile feel
-    await new Promise((resolve) => setTimeout(resolve, 350));
-
-    if (endpoint.startsWith('/projects') && options.method === 'POST') {
-      const body = JSON.parse(options.body || '{}');
-      return {
-        success: true,
-        isMock: true,
-        projectId: `proj_${Math.random().toString(36).substring(2, 9)}`,
-        data: body,
-        message: 'Project state persisted in Nesta (Mock Fallback mode active)',
-        timestamp: new Date().toISOString(),
-      };
-    }
-
-    if (endpoint.startsWith('/build/generate')) {
-      return {
-        success: true,
-        isMock: true,
-        buildId: `bld_${Math.random().toString(36).substring(2, 8)}`,
-        downloadUrl: '#mock-bundle-download',
-        message: 'Project bundle compiled successfully',
-        timestamp: new Date().toISOString(),
-      };
-    }
-
-    return {
-      success: true,
-      isMock: true,
-      message: `Simulated mock response for ${endpoint}`,
-    };
+  async register(username, password) {
+    return this.request({ url: '/auth/register', method: 'POST', data: { username, password }});
   }
 
-  // High-level methods for App components:
+  logout() {
+    localStorage.removeItem('nesta_jwt_token');
+  }
+
+  // Registry API
+  async getFrontendTech() {
+    return FRONTEND_OPTIONS;
+  }
+  async getBackendTech() {
+    return BACKEND_OPTIONS;
+  }
+  async getDatabaseTech() {
+    const res = await this.request({ url: '/technologies/database', method: 'GET' }).catch(() => []);
+    return (res || []).map(r => ({ ...r, tagline: r.description || '', category: 'All' }));
+  }
+  async getFeatures() {
+    return this.request({ url: '/features', method: 'GET' }).catch(() => []);
+  }
+  async getTemplates() {
+    return UI_TEMPLATES;
+  }
+
+  // Projects
   async saveProject(config) {
-    return this.request(API_ENDPOINTS.PROJECTS.CREATE, {
+    return this.request({
+      url: '/projects',
       method: 'POST',
-      body: JSON.stringify(config),
+      data: config
     });
   }
 
   async generateBuild(projectId) {
-    return this.request(API_ENDPOINTS.BUILD.GENERATE, {
-      method: 'POST',
-      body: JSON.stringify({ projectId, outputFormat: 'zip' }),
+    return this.request({
+      url: `/projects/${projectId}/generate`,
+      method: 'POST'
+    });
+  }
+
+  async getArtifacts(projectId) {
+    return this.request({
+      url: `/projects/${projectId}/artifacts`,
+      method: 'GET'
     });
   }
 
   async deploySite(projectId, provider = 'cloudflare_pages') {
-    return this.request(API_ENDPOINTS.DEPLOY.TRIGGER, {
-      method: 'POST',
-      body: JSON.stringify({ projectId, provider }),
-    });
+    // Stub for now
+    return Promise.resolve({ success: true, liveUrl: 'https://preview.nesta.dev' });
   }
 }
 

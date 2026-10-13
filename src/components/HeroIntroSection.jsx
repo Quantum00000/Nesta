@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ArrowRight, Code2, Database, Layers, Rocket, Sparkles, LayoutDashboard, Wrench } from 'lucide-react';
 
-export default function HeroIntroSection({ onNavigate, onOpenApiModal, onViewChange }) {
+export default function HeroIntroSection({ onNavigate, onOpenApiModal, onViewChange, isUltimateMode }) {
   const [activeStep, setActiveStep] = useState(1);
 
-  const steps = [
+  const allSteps = [
     {
       step: 1,
       title: '1. Pick Frontend Framework',
@@ -43,6 +43,14 @@ export default function HeroIntroSection({ onNavigate, onOpenApiModal, onViewCha
     }
   ];
 
+  const steps = isUltimateMode 
+    ? allSteps 
+    : allSteps.slice(2).map((s, index) => ({
+        ...s,
+        step: index + 1,
+        title: `${index + 1}. ${s.title.split('. ')[1]}`
+      }));
+
   return (
     <section id="intro" className="relative pt-6 pb-16 px-4 sm:px-8 max-w-7xl mx-auto font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Background ambient glow */}
@@ -76,7 +84,7 @@ export default function HeroIntroSection({ onNavigate, onOpenApiModal, onViewCha
             {/* Two Primary Action Pathways */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               <div 
-                onClick={() => onNavigate('frontends')}
+                onClick={() => onNavigate(isUltimateMode ? 'frontends' : 'templates')}
                 className="neu-inset p-5 rounded-2xl flex items-start gap-3.5 cursor-pointer hover:border-yellow-400/40 border border-white/5 transition-all group"
               >
                 <div className="p-3 rounded-xl bg-yellow-400 text-black font-bold shadow-md group-hover:scale-105 transition-transform">
@@ -133,7 +141,7 @@ export default function HeroIntroSection({ onNavigate, onOpenApiModal, onViewCha
             </div>
 
             <button
-              onClick={() => onNavigate('frontends')}
+              onClick={() => onNavigate(isUltimateMode ? 'frontends' : 'templates')}
               className="neu-yellow-btn px-6 py-3 rounded-xl text-xs sm:text-sm font-extrabold text-black flex items-center justify-center gap-2 shadow-xl hover:scale-105 transition-all"
             >
               <span>Start Building Now</span>
@@ -142,13 +150,13 @@ export default function HeroIntroSection({ onNavigate, onOpenApiModal, onViewCha
           </div>
         </div>
 
-        {/* RIGHT COLUMN: 4-Step Interactive Workflow */}
+        {/* RIGHT COLUMN: Interactive Workflow */}
         <div className="lg:col-span-5 glass-card rounded-3xl p-6 sm:p-8 flex flex-col justify-between neu-surface border border-white/10">
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-2">
               <div>
                 <h3 className="text-white font-bold text-lg">App Builder Workflow</h3>
-                <p className="text-slate-400 text-xs mt-0.5">4 quick steps from idea to live deployment</p>
+                <p className="text-slate-400 text-xs mt-0.5">{steps.length} quick steps from idea to live deployment</p>
               </div>
               <span className="text-xs font-bold bg-yellow-400 text-black px-2.5 py-1 rounded-lg">
                 Interactive
@@ -216,12 +224,12 @@ export default function HeroIntroSection({ onNavigate, onOpenApiModal, onViewCha
           <div className="mt-5 pt-4 border-t border-white/10">
             <div className="flex items-center justify-between text-xs mb-2">
               <span className="text-slate-400 font-medium">Studio Step</span>
-              <span className="text-yellow-400 font-bold">Step {activeStep} of 4</span>
+              <span className="text-yellow-400 font-bold">Step {activeStep} of {steps.length}</span>
             </div>
             <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-yellow-500 to-yellow-300 rounded-full transition-all duration-300"
-                style={{ width: `${(activeStep / 4) * 100}%` }}
+                style={{ width: `${(activeStep / steps.length) * 100}%` }}
               />
             </div>
           </div>
