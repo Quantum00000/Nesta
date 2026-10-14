@@ -26,4 +26,9 @@ public class RegistryController {
 
     @GetMapping("/templates")
     public ResponseEntity<?> getTemplates() { return ResponseEntity.ok(service.getAllTemplates()); }
+
+    @GetMapping("/health")
+    public ResponseEntity<?> health() {
+        return ResponseEntity.ok(java.util.Map.of("status", "UP", "message", "Nesta backend running"));
+    }
 }

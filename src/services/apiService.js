@@ -27,6 +27,9 @@ apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
     console.error('[Nesta API Error]', error.response?.data || error.message);
+    if (!error.response) {
+      return Promise.reject(new Error('Backend server is unreachable. Please ensure your Railway backend is active and VITE_API_BASE_URL is configured in Vercel.'));
+    }
     return Promise.reject(error.response?.data || error);
   }
 );
