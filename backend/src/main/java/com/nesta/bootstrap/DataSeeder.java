@@ -31,13 +31,22 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepo.findByUsername("demo@nesta.dev").isEmpty()) {
+        java.util.List<User> demoUsers = userRepo.findAllByUsername("demo@nesta.dev");
+        if (demoUsers.isEmpty()) {
             User demo = new User();
             demo.setUsername("demo@nesta.dev");
             demo.setEmail("demo@nesta.dev");
             demo.setPassword(passwordEncoder.encode("password123"));
             demo.setRole("USER");
             userRepo.save(demo);
+        } else if (demoUsers.size() > 1) {
+            // Keep first, delete extra duplicates to clean up table
+            for (int i = 1; i < demoUsers.size(); i++) {
+                try {
+                    userRepo.delete(demoUsers.get(i));
+                } catch (Exception ignored) {
+                }
+            }
         }
         if (frontendRepo.count() == 0) {
             seedFrontend("React", "A declarative, efficient, and flexible JavaScript library for building user interfaces.");
