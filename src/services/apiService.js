@@ -30,7 +30,10 @@ apiClient.interceptors.response.use(
     if (!error.response) {
       return Promise.reject(new Error('Backend server is unreachable. Please ensure your Railway backend is active and VITE_API_BASE_URL is configured in Vercel.'));
     }
-    return Promise.reject(error.response?.data || error);
+    const data = error.response.data;
+    const msg = (typeof data === 'string' ? data : (data?.message || data?.error)) ||
+                (error.response.status === 401 ? 'Account not found or password incorrect. If this is your first time, please click "Register Now" below to create an account.' : error.message);
+    return Promise.reject(new Error(msg));
   }
 );
 

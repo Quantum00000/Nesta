@@ -13,19 +13,32 @@ public class DataSeeder implements CommandLineRunner {
     private final DatabaseTechnologyRepository dbRepo;
     private final FeatureRepository featureRepo;
     private final UITemplateRepository uiTemplateRepo;
+    private final UserRepository userRepo;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public DataSeeder(FrontendTechnologyRepository frontendRepo, BackendTechnologyRepository backendRepo,
                       DatabaseTechnologyRepository dbRepo, FeatureRepository featureRepo,
-                      UITemplateRepository uiTemplateRepo) {
+                      UITemplateRepository uiTemplateRepo, UserRepository userRepo,
+                      org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.frontendRepo = frontendRepo;
         this.backendRepo = backendRepo;
         this.dbRepo = dbRepo;
         this.featureRepo = featureRepo;
         this.uiTemplateRepo = uiTemplateRepo;
+        this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
+        if (userRepo.findByUsername("demo@nesta.dev").isEmpty()) {
+            User demo = new User();
+            demo.setUsername("demo@nesta.dev");
+            demo.setEmail("demo@nesta.dev");
+            demo.setPassword(passwordEncoder.encode("password123"));
+            demo.setRole("USER");
+            userRepo.save(demo);
+        }
         if (frontendRepo.count() == 0) {
             seedFrontend("React", "A declarative, efficient, and flexible JavaScript library for building user interfaces.");
             seedFrontend("Vue", "An approachable, performant and versatile framework for building web user interfaces.");

@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
       return user;
     } catch (err) {
-      throw new Error(err.message || 'Invalid credentials or backend not reachable.');
+      throw new Error(err?.message || 'Invalid email or password. If you do not have an account, please click Register Now.');
     }
   };
 
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
       await apiService.register(email, password); // uses email as username
       return login(email, password);
     } catch (err) {
-      throw new Error(err.message || 'Registration failed');
+      throw new Error(err?.message || 'Registration failed. The username/email might already be taken.');
     }
   };
 

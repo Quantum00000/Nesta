@@ -41,10 +41,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-        String token = jwtUtil.generateToken(request.getUsername());
-        return ResponseEntity.ok(new AuthResponse(token));
+    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+            String token = jwtUtil.generateToken(request.getUsername());
+            return ResponseEntity.ok(new AuthResponse(token));
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            return ResponseEntity.status(401).body(java.util.Map.of(
+                "message", "Account not found or password incorrect. If this is your first time, please click 'Register Now' below to create an account."
+            ));
+        }
     }
     
     @PostMapping("/refresh")
