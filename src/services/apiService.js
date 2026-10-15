@@ -107,6 +107,15 @@ class ApiService {
     // Stub for now
     return Promise.resolve({ success: true, liveUrl: 'https://preview.nesta.dev' });
   }
+
+  // AI Architect Agent
+  async describeApp(description) {
+    return this.request({
+      url: '/agent/describe',
+      method: 'POST',
+      data: { description }
+    });
+  }
 }
 
 export const apiService = new ApiService();

@@ -300,17 +300,13 @@ export default function DeployExportSection({
             <div className="flex items-center gap-3">
               <button
                 onClick={async () => {
+                  if (!projectDescription.trim()) return;
                   setIsProcessingAI(true);
                   setAiResult(null);
                   try {
-                    const res = await fetch('http://localhost:8080/api/agent/describe', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ description: projectDescription })
-                    });
-                    const data = await res.json();
+                    const data = await apiService.describeApp(projectDescription);
                     
-                    if (data.config) {
+                    if (data && data.config) {
                       const cfg = data.config;
                       if (cfg.projectName) {
                         setProjectName(cfg.projectName);
@@ -326,7 +322,7 @@ export default function DeployExportSection({
                     } else {
                       setAiResult({
                         success: false,
-                        message: data.message || "AI Agent responded, but no configuration was generated.",
+                        message: data?.message || "AI Agent responded, but no configuration was generated.",
                         config: null
                       });
                     }
@@ -334,7 +330,7 @@ export default function DeployExportSection({
                     console.error("AI Agent connection error:", e);
                     setAiResult({
                       success: false,
-                      message: "Could not reach Spring AI backend on port 8080. Please ensure the backend is running with your NVIDIA API key.",
+                      message: e.message || "Could not reach Spring AI backend. Please verify your backend service and OPENAI_API_KEY.",
                       config: null
                     });
                   } finally {
