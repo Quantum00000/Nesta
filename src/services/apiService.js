@@ -14,9 +14,12 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('nesta_jwt_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Only send Authorization header for non-auth requests
+    if (!config.url?.includes('/auth/')) {
+      const token = localStorage.getItem('nesta_jwt_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -32,7 +35,8 @@ apiClient.interceptors.response.use(
     }
     const data = error.response.data;
     const msg = (typeof data === 'string' ? data : (data?.message || data?.error)) ||
-                (error.response.status === 401 ? 'Account not found or password incorrect. If this is your first time, please click "Register Now" below to create an account.' : error.message);
+                (error.response.status === 401 ? 'Account not found or password incorrect. If this is your first time, please click "Register Now" below to create an account.' :
+                 error.response.status === 403 ? 'Request declined by server (403). Please register a new account or refresh the page.' : error.message);
     return Promise.reject(new Error(msg));
   }
 );
@@ -43,12 +47,14 @@ class ApiService {
   }
 
   async login(username, password) {
+    localStorage.removeItem('nesta_jwt_token');
     const res = await this.request({ url: '/auth/login', method: 'POST', data: { username, password }});
     if (res.token) localStorage.setItem('nesta_jwt_token', res.token);
     return res;
   }
 
   async register(username, password) {
+    localStorage.removeItem('nesta_jwt_token');
     return this.request({ url: '/auth/register', method: 'POST', data: { username, password }});
   }
 

@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/projects")
+@RequestMapping({"/api/projects", "/projects"})
 public class ProjectController {
     private final ProjectService projectService;
     public ProjectController(ProjectService projectService) { this.projectService = projectService; }

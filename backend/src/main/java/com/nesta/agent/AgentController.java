@@ -5,8 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/agent")
-
+@RequestMapping({"/api/agent", "/agent"})
 public class AgentController {
     
     private final AppDescriptionAgentService agentService;

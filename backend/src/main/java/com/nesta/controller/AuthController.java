@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping({"/api/auth", "/auth"})
 public class AuthController {
     
     private final AuthenticationManager authenticationManager;
@@ -29,15 +29,21 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AuthRequest request) {
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("Username already exists");
+        if (request.getUsername() == null || request.getUsername().trim().isEmpty() ||
+            request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", "Username/email and password are required"));
+        }
+        String username = request.getUsername().trim();
+        if (userRepository.findByUsername(username).isPresent()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", "Username already exists. Please log in instead."));
         }
         User user = new User();
-        user.setUsername(request.getUsername());
+        user.setUsername(username);
+        user.setEmail(username);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("USER");
         userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok(java.util.Map.of("message", "User registered successfully"));
     }
 
     @PostMapping("/login")

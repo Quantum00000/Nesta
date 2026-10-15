@@ -25,8 +25,24 @@ public class SecurityConfig {
         http.cors(org.springframework.security.config.Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/agent/**", "/api/technologies/**", "/api/features/**", "/api/templates/**", "/api/health", "/error").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(
+                    "/api/auth/**", "/auth/**",
+                    "/api/agent/**", "/agent/**",
+                    "/api/technologies/**", "/technologies/**",
+                    "/api/features/**", "/features/**",
+                    "/api/templates/**", "/templates/**",
+                    "/api/health", "/health",
+                    "/error", "/**/health"
+                ).permitAll()
                 .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setContentType("application/json");
+                    response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getOutputStream().println("{\"message\":\"Authentication required or invalid session.\"}");
+                })
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -37,15 +53,10 @@ public class SecurityConfig {
 
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource(
-            @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173,https://nesta-omega.vercel.app,https://*.vercel.app}") String allowedOrigins) {
+            @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins:*}") String allowedOrigins) {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
 
-        java.util.List<String> origins = java.util.Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .collect(java.util.stream.Collectors.toList());
-
-        configuration.setAllowedOriginPatterns(origins.isEmpty() ? java.util.List.of("*") : origins);
+        configuration.setAllowedOriginPatterns(java.util.List.of("*"));
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
         configuration.setAllowedHeaders(java.util.List.of("*"));
         configuration.setExposedHeaders(java.util.List.of("Authorization", "Content-Type"));
