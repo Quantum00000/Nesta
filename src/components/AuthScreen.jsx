@@ -260,6 +260,7 @@ export default function AuthScreen({ onContinue }) {
                   <input
                     type="email"
                     required
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="alex@nesta.dev"
@@ -275,6 +276,7 @@ export default function AuthScreen({ onContinue }) {
                   <input
                     type="password"
                     required
+                    autoComplete={isRegister ? "new-password" : "current-password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
